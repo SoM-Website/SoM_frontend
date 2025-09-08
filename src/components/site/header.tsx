@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 type NavItem = { label: string; href: string };
 
-// 한 줄로 모두 나열 (필요시 href 조정)
 const NAV: NavItem[] = [
   { label: "홈", href: "/" },
   { label: "연구소 소개", href: "/about" },
@@ -16,15 +16,96 @@ const NAV: NavItem[] = [
   { label: "SoM 프로그램", href: "/programs" },
   { label: "상담전문가 수련", href: "/training" },
   { label: "교육안내", href: "/education" },
-  { label: "예약신청", href: "/reserve" },     // ← 필요 없으면 /education 유지 가능
-  { label: "오시는길", href: "/directions" },  // ← 필요 없으면 /education 유지 가능
+  { label: "예약신청", href: "/reserve" },
+  { label: "오시는길", href: "/directions" },
 ];
+
+// ─────────────────────────────────────────────
+// MobileDrawer: body에 포털로 렌더링하는 사이드바
+// ─────────────────────────────────────────────
+function MobileDrawer({
+  open,
+  onClose,
+  pathname,
+}: {
+  open: boolean;
+  onClose: () => void;
+  pathname: string;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const [reveal, setReveal] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (open) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const id = requestAnimationFrame(() => setReveal(true));
+      const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+      window.addEventListener("keydown", onKey);
+      return () => {
+        document.body.style.overflow = prev;
+        cancelAnimationFrame(id);
+        window.removeEventListener("keydown", onKey);
+      };
+    } else {
+      setReveal(false);
+    }
+  }, [open, mounted, onClose]);
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  if (!mounted || !open) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] sm:hidden"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/40" />
+      <div
+        className={`absolute left-0 top-0 h-full w-72 bg-white p-5 
+                    shadow-[2px_0_10px_rgba(0,0,0,0.15)]
+                    transform transition-transform duration-300
+                    ${reveal ? "translate-x-0" : "-translate-x-full"}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-end mb-4">
+          <button onClick={onClose} className="p-2" aria-label="메뉴 닫기">✕</button>
+        </div>
+
+        <nav className="flex flex-col gap-1">
+          {NAV.map((item) => (
+            <Link
+              key={`m-${item.href}`}
+              href={item.href}
+              onClick={onClose}
+              className={`rounded-md px-3 py-2 text-[15px] text-left ${
+                isActive(item.href)
+                  ? "bg-neutral-100 font-semibold text-neutral-900"
+                  : "text-neutral-800 hover:bg-neutral-50"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // 가로 스크롤(화살표)만 유지 — 필요 없으면 아래 전부 제거 가능
+  // 데스크톱 가로 스크롤
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
@@ -35,7 +116,6 @@ export function Header() {
     setCanLeft(el.scrollLeft > 0);
     setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
   };
-
   const scrollBy = (dx: number) => {
     const el = trackRef.current;
     if (!el) return;
@@ -44,6 +124,7 @@ export function Header() {
   };
 
   useEffect(() => { setOpen(false); }, [pathname]);
+
   useEffect(() => {
     updateScrollState();
     const el = trackRef.current;
@@ -60,8 +141,18 @@ export function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  // 현재 페이지 제목 (NAV 매칭: 더 긴 href 우선)
+  const currentLabel = (() => {
+    const found = [...NAV]
+      .sort((a, b) => b.href.length - a.href.length)
+      .find((item) =>
+        item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)
+      );
+    return found?.label ?? "";
+  })();
+
   const NavLink = ({ item }: { item: NavItem }) => (
-  <Link
+    <Link
       key={item.href}
       href={item.href}
       aria-current={isActive(item.href) ? "page" : undefined}
@@ -81,85 +172,70 @@ export function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-      <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        {/* 좌측: 햄버거 + 브랜드 */}
-        <div className="flex items-center gap-3">
-          <button
-            className="sm:hidden inline-flex flex-col justify-center gap-[5px] p-2 -ml-2"
-            aria-label="메뉴 열기"
-            onClick={() => setOpen(true)}
-          >
-            <span className="h-[2px] w-6 bg-neutral-900 rounded" />
-            <span className="h-[2px] w-6 bg-neutral-900 rounded" />
-            <span className="h-[2px] w-6 bg-neutral-900 rounded" />
-          </button>
-
-          <Link href="/" className="text-lg sm:text-xl font-bold">
-            솜(SoM)상담연구소
+    <>
+      <header className="sticky top-0 z-50 pt-5 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+        {/* 1행: 왼쪽 정렬 브랜드명 */}
+        <div className="container max-w-6xl mx-auto px-4 h-10 flex items-center justify-start">
+          <Link href="/" className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">
+            SoM 상담 연구소
           </Link>
         </div>
 
-        {/* 데스크탑: 가로 스크롤 가능 탭 + 좌/우 화살표 */}
-        <div className="relative hidden md:flex items-center flex-1">
-          {canLeft && (
+        {/* 2행: 메뉴 */}
+        <div className="container max-w-6xl mx-auto px-4 h-12 flex items-center justify-between gap-4">
+          {/* 모바일: 햄버거 + 현재 페이지 제목 */}
+          <div className="sm:hidden flex items-center gap-2 -ml-2">
             <button
-              onClick={() => scrollBy(-240)}
-              className="absolute left-0 z-10 h-8 w-8 rounded-full bg-white/90 shadow border flex items-center justify-center hover:bg-white"
-              aria-label="이전"
-              title="이전"
+              className="inline-flex flex-col justify-center gap-[5px] p-2"
+              aria-label="메뉴 열기"
+              onClick={() => setOpen(true)}
             >
-              ‹
+              <span className="h-[2px] w-6 bg-neutral-900 rounded" />
+              <span className="h-[2px] w-6 bg-neutral-900 rounded" />
+              <span className="h-[2px] w-6 bg-neutral-900 rounded" />
             </button>
-          )}
-
-          <div
-            ref={trackRef}
-            className="mx-10 flex items-center gap-6 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {NAV.map((item) => <NavLink key={item.href} item={item} />)}
+            {/* 페이지 제목: 메뉴 포맷과 동일한 크기/스타일로 표시 */}
+            <span className="text-[15px] leading-none font-bold text-neutral-900">
+              {currentLabel}
+            </span>
           </div>
 
-          {canRight && (
-            <button
-              onClick={() => scrollBy(240)}
-              className="absolute right-0 z-10 h-8 w-8 rounded-full bg-white/90 shadow border flex items-center justify-center hover:bg-white"
-              aria-label="다음"
-              title="다음"
-            >
-              ›
-            </button>
-          )}
-        </div>
-      </div>
+          {/* 데스크탑: 가로 스크롤 가능한 탭 */}
+          <div className="relative hidden md:flex items-center flex-1">
+            {canLeft && (
+              <button
+                onClick={() => scrollBy(-240)}
+                className="absolute left-0 z-10 h-8 w-8 rounded-full bg-white/90 shadow border flex items-center justify-center hover:bg-white"
+                aria-label="이전"
+                title="이전"
+              >
+                ‹
+              </button>
+            )}
 
-      {/* 모바일 패널 — NAV만 사용 (중복 제거) */}
-      {open && (
-        <div className="fixed inset-0 z-50 bg-black/30 sm:hidden" onClick={() => setOpen(false)}>
-          <div
-            className="absolute left-0 top-0 h-full w-72 bg-white shadow-lg p-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="font-semibold">메뉴</div>
-              <button onClick={() => setOpen(false)} className="p-2 -mr-2" aria-label="메뉴 닫기">✕</button>
+            <div
+              ref={trackRef}
+              className="mx-10 flex items-center gap-6 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {NAV.map((item) => <NavLink key={item.href} item={item} />)}
             </div>
-            <nav className="flex flex-col gap-1">
-              {NAV.map((item) => (
-                <Link
-                  key={`m-${item.href}`}
-                  href={item.href}
-                  className={`rounded-md px-3 py-2 text-[15px] ${
-                    isActive(item.href) ? "bg-neutral-100 font-semibold text-neutral-900" : "text-neutral-800 hover:bg-neutral-50"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+
+            {canRight && (
+              <button
+                onClick={() => scrollBy(240)}
+                className="absolute right-0 z-10 h-8 w-8 rounded-full bg-white/90 shadow border flex items-center justify-center hover:bg-white"
+                aria-label="다음"
+                title="다음"
+              >
+                ›
+              </button>
+            )}
           </div>
         </div>
-      )}
-    </header>
+      </header>
+
+      {/* 헤더 밖(body)에 포털로 붙는 모바일 드로어 */}
+      <MobileDrawer open={open} onClose={() => setOpen(false)} pathname={pathname} />
+    </>
   );
 }
