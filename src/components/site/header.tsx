@@ -5,22 +5,53 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-type NavItem = { label: string; href: string };
+// ─────────────────────────────────────────────
+// 타입: 하위 메뉴(children) 지원
+// ─────────────────────────────────────────────
+type ChildItem = { label: string; href: string };
+type NavItem = { label: string; href: string; children?: ChildItem[] };
 
+// ─────────────────────────────────────────────
+// 메뉴 데이터
+// ─────────────────────────────────────────────
 const NAV: NavItem[] = [
-  { label: "연구소 소개", href: "/about" },
+  {
+    label: "연구소 소개",
+    href: "/about",
+    children: [
+      { label: "SoM이란?", href: "#" },
+      { label: "대표 소개", href: "#" },
+    ],
+  },
   { label: "함께하는 사람들", href: "/people" },
   { label: "내부시설", href: "/facilities" },
   { label: "상담서비스", href: "/services" },
-  { label: "SoM 프로그램", href: "/programs" },
+  {
+    label: "SoM 프로그램",
+    href: "/programs",
+    children: [
+      { label: "SoM 스트레스 관리", href: "#" },
+      { label: "효과적인 의사소통 훈련", href: "#" },
+      { label: "SoM 부부학교", href: "#" },
+      { label: "한알 부모 훈련", href: "#" },
+      { label: "SoM ART", href: "#" },
+    ],
+  },
   { label: "상담전문가 수련", href: "/training" },
-  { label: "교육안내", href: "/education" },
+  {
+    label: "교육안내",
+    href: "/education",
+    children: [
+      { label: "교육안내", href: "#" },
+      { label: "교육후기", href: "#" },
+    ],
+  },
   { label: "예약신청", href: "/reserve" },
   { label: "오시는길", href: "/directions" },
 ];
 
 // ─────────────────────────────────────────────
-// MobileDrawer: body에 포털로 렌더링하는 사이드바
+// MobileDrawer (변경 없음)
 // ─────────────────────────────────────────────
 function MobileDrawer({
   open,
@@ -104,7 +135,7 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // 데스크톱 가로 스크롤 상태
+  // 데스크톱 가로 스크롤 상태 (유지)
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
@@ -125,7 +156,7 @@ export function Header() {
   // 라우트 변경 시 모바일 패널 닫기
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  // 스크롤 상태 초기화
+  // 스크롤 상태 초기화 (유지)
   useEffect(() => {
     updateScrollState();
     const el = trackRef.current;
@@ -142,7 +173,9 @@ export function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-
+  // ─────────────────────────────────────────────
+  // 탑 메뉴 링크 (그대로 유지)
+  // ─────────────────────────────────────────────
   const NavLink = ({ item }: { item: NavItem }) => (
     <Link
       key={item.href}
@@ -153,6 +186,7 @@ export function Header() {
           ? "font-bold text-neutral-900"
           : "font-semibold text-neutral-700 hover:text-neutral-900"
       }`}
+      aria-haspopup={item.children?.length ? "menu" : undefined}
     >
       {item.label}
       <span
@@ -163,10 +197,58 @@ export function Header() {
     </Link>
   );
 
+  // ─────────────────────────────────────────────
+  // 메가메뉴 상태/정렬 (안정화 버전)
+  // ─────────────────────────────────────────────
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [megaOpen, setMegaOpen] = useState(false);
+  const [submenuLeft, setSubmenuLeft] = useState(0);
+
+  const rowRef = useRef<HTMLDivElement | null>(null);    // 2행 컨테이너
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]); // 각 탭 래퍼
+
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const calcLeft = (idx: number) => {
+    const rr = rowRef.current?.getBoundingClientRect();
+    const ir = itemRefs.current[idx]?.getBoundingClientRect();
+    if (rr && ir) setSubmenuLeft(ir.left - rr.left);
+  };
+
+  const openFor = (idx: number) => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    const hasChildren = !!NAV[idx]?.children?.length;
+    if (!hasChildren) {
+      setMegaOpen(false);
+      setHoveredIdx(null);
+      return;
+    }
+    setHoveredIdx(idx);
+    calcLeft(idx);
+    setMegaOpen(true);
+  };
+
+  const closeWithDelay = () => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setMegaOpen(false);
+      setHoveredIdx(null);
+    }, 120);
+  };
+
+  useEffect(() => {
+    const onResize = () => {
+      if (!megaOpen || hoveredIdx == null) return;
+      calcLeft(hoveredIdx);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [megaOpen, hoveredIdx]);
+
   return (
     <>
       <header className="sticky top-0 z-50 pt-5 bg-white backdrop-blur supports-[backdrop-filter]:bg-white">
-        {/* ───────── 모바일: 한 줄(햄버거 + SoM + 현재 페이지 제목) ───────── */}
+        {/* ───────── 모바일: 한 줄(햄버거 + SoM) ───────── */}
         <div className="container max-w-6xl mx-auto px-4 h-12 flex md:hidden items-center justify-between">
           <div className="flex items-center gap-2 -ml-2">
             <button
@@ -193,17 +275,63 @@ export function Header() {
             </Link>
           </div>
 
-          {/* 2행: 메뉴(가로 스크롤 탭) */}
-          {/* 2행: 메뉴(가운데 정렬) */}
-          <div className="container max-w-6xl mx-auto px-4 h-12 hidden md:flex items-center justify-center">
+          {/* 2행: 메뉴(가운데 정렬) + relative (앵커) */}
+          <div
+            ref={rowRef}
+            className="container max-w-6xl mx-auto px-4 h-12 hidden md:flex items-center justify-center relative"
+            onMouseLeave={closeWithDelay}
+          >
             <nav className="flex items-center gap-6">
-              {NAV.map((item) => (
-                <NavLink key={item.href} item={item} />
+              {NAV.map((item, idx) => (
+                <div
+                  key={item.href}
+                  ref={(el) => (itemRefs.current[idx] = el)}
+                  className="relative inline-block"
+                  onMouseEnter={() => openFor(idx)}
+                >
+                  <NavLink item={item} />
+                </div>
               ))}
             </nav>
-          </div>
-        </div> 
 
+            {/* ───────── 메가메뉴: absolute, top=행 아래 ───────── */}
+            {megaOpen && (
+              <div
+                className="absolute left-0 right-0 top-full z-40"
+                onMouseEnter={() => {
+                  if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+                }}
+                onMouseLeave={closeWithDelay}
+              >
+                {/* 풀-폭 배경 레이어 */}
+                <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 w-screen h-full bg-white/97 supports-[backdrop-filter]:backdrop-blur-sm" />
+                {/* 컨텐츠 레이어(정렬 유지) */}
+                <div className="relative py-6">
+                  <div style={{ marginLeft: submenuLeft }}>
+                    {hoveredIdx !== null && NAV[hoveredIdx]?.children?.length ? (
+                      <ul className="flex flex-col gap-2">
+                        {NAV[hoveredIdx].children!.map((c) => (
+                          <li key={c.label}>
+                            <Link
+                              href={c.href}
+                              className="block text-[15px] leading-6 text-neutral-800 hover:text-neutral-900 whitespace-nowrap hover:font-bold focus-visible:font-bold"
+                              onClick={() => {
+                                setMegaOpen(false);
+                                setHoveredIdx(null);
+                              }}
+                            >
+                              {c.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* 헤더 밖(body)에 포털로 붙는 모바일 드로어 */}
