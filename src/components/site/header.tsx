@@ -8,10 +8,9 @@ import { createPortal } from "react-dom";
 type NavItem = { label: string; href: string };
 
 const NAV: NavItem[] = [
-  { label: "홈", href: "/" },
   { label: "연구소 소개", href: "/about" },
   { label: "함께하는 사람들", href: "/people" },
-  { label: "내부시설", href: "/facility" },
+  { label: "내부시설", href: "/facilities" },
   { label: "상담서비스", href: "/services" },
   { label: "SoM 프로그램", href: "/programs" },
   { label: "상담전문가 수련", href: "/training" },
@@ -105,7 +104,7 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // 데스크톱 가로 스크롤
+  // 데스크톱 가로 스크롤 상태
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
@@ -123,8 +122,10 @@ export function Header() {
     setTimeout(updateScrollState, 200);
   };
 
+  // 라우트 변경 시 모바일 패널 닫기
   useEffect(() => { setOpen(false); }, [pathname]);
 
+  // 스크롤 상태 초기화
   useEffect(() => {
     updateScrollState();
     const el = trackRef.current;
@@ -141,15 +142,6 @@ export function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  // 현재 페이지 제목 (NAV 매칭: 더 긴 href 우선)
-  const currentLabel = (() => {
-    const found = [...NAV]
-      .sort((a, b) => b.href.length - a.href.length)
-      .find((item) =>
-        item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)
-      );
-    return found?.label ?? "";
-  })();
 
   const NavLink = ({ item }: { item: NavItem }) => (
     <Link
@@ -173,18 +165,10 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 pt-5 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-        {/* 1행: 왼쪽 정렬 브랜드명 */}
-        <div className="container max-w-6xl mx-auto px-4 h-10 flex items-center justify-start">
-          <Link href="/" className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">
-            SoM 상담 연구소
-          </Link>
-        </div>
-
-        {/* 2행: 메뉴 */}
-        <div className="container max-w-6xl mx-auto px-4 h-12 flex items-center justify-between gap-4">
-          {/* 모바일: 햄버거 + 현재 페이지 제목 */}
-          <div className="sm:hidden flex items-center gap-2 -ml-2">
+      <header className="sticky top-0 z-50 pt-5 bg-white backdrop-blur supports-[backdrop-filter]:bg-white">
+        {/* ───────── 모바일: 한 줄(햄버거 + SoM + 현재 페이지 제목) ───────── */}
+        <div className="container max-w-6xl mx-auto px-4 h-12 flex md:hidden items-center justify-between">
+          <div className="flex items-center gap-2 -ml-2">
             <button
               className="inline-flex flex-col justify-center gap-[5px] p-2"
               aria-label="메뉴 열기"
@@ -194,44 +178,32 @@ export function Header() {
               <span className="h-[2px] w-6 bg-neutral-900 rounded" />
               <span className="h-[2px] w-6 bg-neutral-900 rounded" />
             </button>
-            {/* 페이지 제목: 메뉴 포맷과 동일한 크기/스타일로 표시 */}
-            <span className="text-[15px] leading-none font-bold text-neutral-900">
-              {currentLabel}
-            </span>
-          </div>
-
-          {/* 데스크탑: 가로 스크롤 가능한 탭 */}
-          <div className="relative hidden md:flex items-center flex-1">
-            {canLeft && (
-              <button
-                onClick={() => scrollBy(-240)}
-                className="absolute left-0 z-10 h-8 w-8 rounded-full bg-white/90 shadow border flex items-center justify-center hover:bg-white"
-                aria-label="이전"
-                title="이전"
-              >
-                ‹
-              </button>
-            )}
-
-            <div
-              ref={trackRef}
-              className="mx-10 flex items-center gap-6 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {NAV.map((item) => <NavLink key={item.href} item={item} />)}
-            </div>
-
-            {canRight && (
-              <button
-                onClick={() => scrollBy(240)}
-                className="absolute right-0 z-10 h-8 w-8 rounded-full bg-white/90 shadow border flex items-center justify-center hover:bg-white"
-                aria-label="다음"
-                title="다음"
-              >
-                ›
-              </button>
-            )}
+            <Link href="/" className="text-base font-bold">
+              SoM 상담 연구소
+            </Link>
           </div>
         </div>
+
+        {/* ───────── 데스크톱: 기존 2행 유지 ───────── */}
+        <div className="hidden md:block">
+          {/* 1행: 왼쪽 정렬 브랜드명 */}
+          <div className="container max-w-6xl mx-auto px-4 h-10 flex items-center justify-start">
+            <Link href="/" className="text-lg md:text-xl lg:text-2xl font-bold">
+              SoM 상담 연구소
+            </Link>
+          </div>
+
+          {/* 2행: 메뉴(가로 스크롤 탭) */}
+          {/* 2행: 메뉴(가운데 정렬) */}
+          <div className="container max-w-6xl mx-auto px-4 h-12 hidden md:flex items-center justify-center">
+            <nav className="flex items-center gap-6">
+              {NAV.map((item) => (
+                <NavLink key={item.href} item={item} />
+              ))}
+            </nav>
+          </div>
+        </div> 
+
       </header>
 
       {/* 헤더 밖(body)에 포털로 붙는 모바일 드로어 */}

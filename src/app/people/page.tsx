@@ -1,5 +1,7 @@
 // app/people/page.tsx
 import Image from "next/image";
+import PageHeader from "@/components/PageHeader";
+import Container from "@/components/layout/Container";
 
 type Person = {
   name: string;
@@ -70,29 +72,40 @@ function PersonTextItem({ p }: { p: Person }) {
 export default function PeoplePage() {
   return (
     <>
-      <main className="mx-auto max-w-5xl py-10">
-        {/* 섹션 1: 이미지 포함 (상담진) */}
-        <section className="py-8">
-          <div className="mt-6 grid gap-8 md:grid-cols-2">
-            {faculty.map((p) => (
-              <PersonCardWithImage key={p.name} p={p} />
-            ))}
-          </div>
-        </section>
+      {/* 페이지 상단 대제목: PageHeader 내부에서 Container 사용 */}
+      <PageHeader
+        title="함께하는 사람들"
+        variant="split"
+        className="max-w-5xl px-4 sm:px-6"
+        // breadcrumbs={[{ label: "홈", href: "/" }, { label: "함께하는 사람들" }]}
+      />
+
+      {/* 본문: Container로 감싸 동일 폭/여백 유지 */}
+      <main className="py-10">
+        <Container>
+          {/* 섹션 1: 이미지 포함 (상담진) */}
+          <section className="py-8">
+            <div className="mt-6 grid gap-8 md:grid-cols-2">
+              {faculty.map((p) => (
+                <PersonCardWithImage key={p.name} p={p} />
+              ))}
+            </div>
+          </section>
+        </Container>
       </main>
 
       {/* 섹션 2: 화면 전체(풀-블리드) + 텍스트만 (팀원) */}
-      <section className="bg-[#735751]/3 py-10">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-            <h4 className="text-2xl font-bold text-[#735751] leading-snug mb-10">
-                솜 상담연구소는 상담 및 심신치유 전문가들과 함께합니다.
-            </h4>
+      <section className="bg-[#000000]/3 py-10">
+        <Container>
+          <h4 className="text-2xl font-bold text-[#735751] leading-snug mb-13">
+            솜 상담연구소는 상담 및 심신치유 전문가들과 함께합니다.
+          </h4>
           <div className="mt-6 grid gap-8 md:grid-cols-2">
             {members.map((p) => (
               <PersonTextItem key={p.name} p={p} />
             ))}
           </div>
-        </div>
+        </Container>
       </section>
     </>
   );

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
 import { Header } from "@/components/site/header";
+
 // Footer가 없으면 아래 줄 제거
 // import { Footer } from "@/components/site/footer";
 
