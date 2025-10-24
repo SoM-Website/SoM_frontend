@@ -1,15 +1,12 @@
 // src/app/layout.tsx
-import type { Metadata } from "next";
 import "./globals.css";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { Header } from "@/components/site/header";
-
-// Footer가 없으면 아래 줄 제거
-// import { Footer } from "@/components/site/footer";
 
 const pretendard = localFont({
   src: "./fonts/PretendardVariable.woff2",
-  // Pretendard 가변폰트 권장 범위 (공식 README의 Next.js 예시)
   weight: "45 920",
   style: "normal",
   display: "swap",
@@ -21,12 +18,22 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const clientId = process.env.NEXT_PUBLIC_NAVER_MAPS_CLIENT_ID;
+
   return (
     <html lang="ko">
       <body className={`${pretendard.className} antialiased`}>
+        {/* 전역 네이버 지도 SDK 로드 (함수 props 금지) */}
+        {clientId ? (
+          <Script
+            id="naver-maps"
+            strategy="afterInteractive"
+            src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}&submodules=geocoder`}
+          />
+        ) : null}
+
         <Header />
         <main className="min-h-screen">{children}</main>
-        {/* <Footer /> */}
       </body>
     </html>
   );

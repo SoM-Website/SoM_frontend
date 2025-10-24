@@ -394,25 +394,6 @@ export default function HomePage() {
 
 
 
-      {/* 앵커 플레이스홀더(퀵레일용) */}
-      <section id="programs" className="container mx-auto max-w-5xl px-4 pb-16">
-        <div className="text-lg font-semibold mb-3">프로그램</div>
-        <div className="text-sm text-muted-foreground">프로그램 소개가 들어갑니다.</div>
-      </section>
-
-      <section id="contact" className="container mx-auto max-w-5xl px-4 pb-16">
-        <div className="text-lg font-semibold mb-3">상담 문의</div>
-        <div className="space-y-3 text-sm text-muted-foreground">운영시간/연락처/위치/예약 방식 안내.</div>
-      </section>
-
-      <section id="qna" className="container mx-auto max-w-5xl px-4 pb-24">
-        <div className="text-lg font-semibold mb-3">문의 / 자주 묻는 질문</div>
-        <ul className="list-disc pl-5 text-sm text-muted-foreground">
-          <li>예약은 어떻게 하나요?</li>
-          <li>상담 소요 시간과 비용은?</li>
-          <li>비대면 상담 지원 범위는?</li>
-        </ul>
-      </section>
 
       {/* 오른쪽 고정 퀵액션
       <QuickRail /> */}
