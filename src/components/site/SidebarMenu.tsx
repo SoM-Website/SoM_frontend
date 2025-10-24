@@ -19,7 +19,7 @@ const SidebarMenu = ({ panelData, activeMenu, onMenuClick }: SidebarMenuProps) =
                 className={`mb-1 flex h-9 w-9 items-center justify-center rounded-lg transition-colors
                   ${activeMenu === key ? "bg-[#eceff2]" : ""}`}
               >
-                <CustomImage src={data.icon} alt={data.title} />
+                <CustomImage src={data.icon} alt={data.title ?? data.label} />
               </div>
               <span className={`text-xs ${
                 activeMenu === key ? "font-bold text-[#3b4a6b]" : "text-[#8b98a9]"

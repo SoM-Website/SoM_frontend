@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useRef } from "react";
+
 
 // ─────────────────────────────────────────────
 // 타입: 하위 메뉴(children) 지원
@@ -42,7 +44,7 @@ const NAV: NavItem[] = [
     label: "교육안내",
     href: "/education",
     children: [
-      { label: "교육안내", href: "#" },
+      { label: "교육안내", href: "/education" },
       { label: "교육후기", href: "#" },
     ],
   },
@@ -205,7 +207,9 @@ export function Header() {
   const [submenuLeft, setSubmenuLeft] = useState(0);
 
   const rowRef = useRef<HTMLDivElement | null>(null);    // 2행 컨테이너
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]); // 각 탭 래퍼
+  // const itemRefs = useRef<(HTMLDivElement | null)[]>([]); // 각 탭 래퍼
+  const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
+
 
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -285,7 +289,7 @@ export function Header() {
               {NAV.map((item, idx) => (
                 <div
                   key={item.href}
-                  ref={(el) => (itemRefs.current[idx] = el)}
+                  ref={(el) => { itemRefs.current[idx] = el; }}
                   className="relative inline-block"
                   onMouseEnter={() => openFor(idx)}
                 >
