@@ -1,11 +1,10 @@
+// src/components/site/header.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useRef } from "react";
-
 
 // ─────────────────────────────────────────────
 // 타입: 하위 메뉴(children) 지원
@@ -29,16 +28,16 @@ const NAV: NavItem[] = [
   { label: "내부시설", href: "/facilities" },
   { label: "상담서비스", href: "/services" },
   {
-  label: "SoM 프로그램",
-  href: "/programs" ,
-  children: [
-    { label: "SoM 스트레스 관리",       href: "/programs" },
-    { label: "효과적인 의사소통 훈련", href: "/programs/communication" },
-    { label: "SoM 부부학교",           href: "/programs/couple-school" },
-    { label: "한알 부모 훈련",          href: "/programs/parent" },
-    { label: "SoM ART",                href: "/programs/art" },
-  ],
-},
+    label: "SoM 프로그램",
+    href: "/programs",
+    children: [
+      { label: "SoM 스트레스 관리", href: "/programs" },
+      { label: "효과적인 의사소통 훈련", href: "/programs/communication" },
+      { label: "SoM 부부학교", href: "/programs/couple-school" },
+      { label: "한알 부모 훈련", href: "/programs/parent" },
+      { label: "SoM ART", href: "/programs/art" },
+    ],
+  },
   { label: "상담전문가 수련", href: "/training" },
   {
     label: "교육안내",
@@ -48,12 +47,11 @@ const NAV: NavItem[] = [
       { label: "교육후기", href: "#" },
     ],
   },
-  // { label: "예약신청", href: "/reserve" },
   { label: "오시는길", href: "/directions" },
 ];
 
 // ─────────────────────────────────────────────
-// MobileDrawer (변경 없음)
+// MobileDrawer
 // ─────────────────────────────────────────────
 function MobileDrawer({
   open,
@@ -67,7 +65,9 @@ function MobileDrawer({
   const [mounted, setMounted] = useState(false);
   const [reveal, setReveal] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!mounted) return;
@@ -108,7 +108,9 @@ function MobileDrawer({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-end mb-4">
-          <button onClick={onClose} className="p-2" aria-label="메뉴 닫기">✕</button>
+          <button onClick={onClose} className="p-2" aria-label="메뉴 닫기">
+            ✕
+          </button>
         </div>
 
         <nav className="flex flex-col gap-1">
@@ -133,11 +135,14 @@ function MobileDrawer({
   );
 }
 
+// ─────────────────────────────────────────────
+// Header
+// ─────────────────────────────────────────────
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // 데스크톱 가로 스크롤 상태 (유지)
+  // 데스크톱 가로 스크롤 상태
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
@@ -148,6 +153,7 @@ export function Header() {
     setCanLeft(el.scrollLeft > 0);
     setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
   };
+
   const scrollBy = (dx: number) => {
     const el = trackRef.current;
     if (!el) return;
@@ -156,9 +162,11 @@ export function Header() {
   };
 
   // 라우트 변경 시 모바일 패널 닫기
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
-  // 스크롤 상태 초기화 (유지)
+  // 스크롤 상태 초기화
   useEffect(() => {
     updateScrollState();
     const el = trackRef.current;
@@ -175,9 +183,6 @@ export function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  // ─────────────────────────────────────────────
-  // 탑 메뉴 링크 (그대로 유지)
-  // ─────────────────────────────────────────────
   const NavLink = ({ item }: { item: NavItem }) => (
     <Link
       key={item.href}
@@ -199,18 +204,13 @@ export function Header() {
     </Link>
   );
 
-  // ─────────────────────────────────────────────
-  // 메가메뉴 상태/정렬 (안정화 버전)
-  // ─────────────────────────────────────────────
+  // 메가메뉴 상태/정렬
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [megaOpen, setMegaOpen] = useState(false);
   const [submenuLeft, setSubmenuLeft] = useState(0);
 
-  const rowRef = useRef<HTMLDivElement | null>(null);    // 2행 컨테이너
-  // const itemRefs = useRef<(HTMLDivElement | null)[]>([]); // 각 탭 래퍼
+  const rowRef = useRef<HTMLDivElement | null>(null); // 2행 컨테이너
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
-
-
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const calcLeft = (idx: number) => {
@@ -270,7 +270,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* ───────── 데스크톱: 기존 2행 유지 ───────── */}
+        {/* ───────── 데스크톱: 2행 ───────── */}
         <div className="hidden md:block">
           {/* 1행: 왼쪽 정렬 브랜드명 */}
           <div className="container max-w-6xl mx-auto px-4 h-10 flex items-center justify-start">
@@ -279,26 +279,56 @@ export function Header() {
             </Link>
           </div>
 
-          {/* 2행: 메뉴(가운데 정렬) + relative (앵커) */}
+          {/* 2행: 메뉴(가운데 정렬) + 가로 스크롤 트랙 + 좌우 버튼 */}
           <div
             ref={rowRef}
             className="container max-w-6xl mx-auto px-4 h-12 hidden md:flex items-center justify-center relative"
             onMouseLeave={closeWithDelay}
           >
-            <nav className="flex items-center gap-6">
-              {NAV.map((item, idx) => (
-                <div
-                  key={item.href}
-                  ref={(el) => { itemRefs.current[idx] = el; }}
-                  className="relative inline-block"
-                  onMouseEnter={() => openFor(idx)}
-                >
-                  <NavLink item={item} />
-                </div>
-              ))}
-            </nav>
+            {/* 왼쪽 스크롤 버튼 */}
+            <button
+              type="button"
+              aria-label="왼쪽으로 스크롤"
+              onClick={() => scrollBy(-240)}
+              disabled={!canLeft}
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-md text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+            >
+              ‹
+            </button>
 
-            {/* ───────── 메가메뉴: absolute, top=행 아래 ───────── */}
+            {/* 가로 스크롤 트랙 */}
+            <div
+              ref={trackRef}
+              className="overflow-x-auto whitespace-nowrap px-8"
+            >
+              <nav className="inline-flex items-center gap-6">
+                {NAV.map((item, idx) => (
+                  <div
+                    key={item.href}
+                    ref={(el) => {
+                      itemRefs.current[idx] = el;
+                    }}
+                    className="relative inline-block"
+                    onMouseEnter={() => openFor(idx)}
+                  >
+                    <NavLink item={item} />
+                  </div>
+                ))}
+              </nav>
+            </div>
+
+            {/* 오른쪽 스크롤 버튼 */}
+            <button
+              type="button"
+              aria-label="오른쪽으로 스크롤"
+              onClick={() => scrollBy(240)}
+              disabled={!canRight}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+            >
+              ›
+            </button>
+
+            {/* 메가메뉴 */}
             {megaOpen && (
               <div
                 className="absolute left-0 right-0 top-full z-40"

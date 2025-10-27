@@ -1,22 +1,21 @@
-import React from "react";
+// src/components/PageHeader.tsx
+import type { ReactNode } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import Container from "@/components/layout/Container";
-
 
 type Crumb = { label: string; href?: string };
 
 type Props = {
   title: string;
-  description?: React.ReactNode;
-  subDescription?: React.ReactNode;
+  description?: ReactNode;
+  subDescription?: ReactNode;
   breadcrumbs?: Crumb[];
   variant?: "simple" | "split";
   align?: "left" | "center";
   bgMuted?: boolean;
   showDivider?: boolean;
   /** 헤더 컨테이너의 폭만 바꾸고 싶을 때 */
-  containerSize?: "sm" | "md" | "lg" | "xl"; 
+  containerSize?: "sm" | "md" | "lg" | "xl";
   /** 바깥 래퍼(max-w, px 등) 오버라이드 */
   className?: string;
   /** 제목 왼쪽 여백(pl-*) 등 미세 정렬 */
@@ -24,11 +23,17 @@ type Props = {
   id?: string;
 };
 
+const sizeMap: Record<NonNullable<Props["containerSize"]>, string> = {
+  sm: "max-w-screen-sm",
+  md: "max-w-screen-md",
+  lg: "max-w-screen-lg",
+  xl: "max-w-screen-xl",
+};
 
 export default function PageHeader({
   title,
   description,
-  subDescription,      
+  subDescription,
   breadcrumbs,
   variant = "simple",
   align = "left",
@@ -50,8 +55,14 @@ export default function PageHeader({
         "pt-24 pb-12 md:pt-36 md:pb-16"
       )}
     >
-      {/* 본문과 동일 규격 기본값 */}
-      <div className={clsx("mx-auto w-full max-w-5xl px-4 sm:px-6", className)}>
+      {/* 본문과 동일 규격 기본값 + containerSize 반영 */}
+      <div
+        className={clsx(
+          "mx-auto w-full px-4 sm:px-6",
+          sizeMap[containerSize],
+          className
+        )}
+      >
         {breadcrumbs?.length ? (
           <nav className="mb-4 text-sm text-neutral-500" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2">
@@ -83,7 +94,6 @@ export default function PageHeader({
               {title}
             </h1>
 
-            {/* 우측 설명 블럭: description + subDescription */}
             {(description || subDescription) && (
               <div className="flex flex-col gap-3">
                 {description && (

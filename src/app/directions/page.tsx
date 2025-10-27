@@ -1,17 +1,25 @@
 // src/app/directions/page.tsx
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import PageHeader from "@/components/PageHeader";
-import Container from "@/components/layout/Container";
+/// <reference types="navermaps" />
 
-declare global { interface Window { naver: any } }
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import PageHeader from '@/components/PageHeader';
+import Container from '@/components/layout/Container';
+
+// 전역 naver 타입을 정확히 지정( @types/navermaps 사용 )
+declare global {
+  interface Window {
+    naver: typeof naver;
+  }
+}
 
 // 네이버 entry URL(웹 메르카토 미터) → 위경도
 function webMercatorToLatLng(x: number, y: number) {
   const R = 20037508.34;
   const lng = (x / R) * 180;
-  const lat = (180 / Math.PI) * (2 * Math.atan(Math.exp((y / R) * Math.PI)) - Math.PI / 2);
+  const lat =
+    (180 / Math.PI) * (2 * Math.atan(Math.exp((y / R) * Math.PI)) - Math.PI / 2);
   return { lat, lng };
 }
 
@@ -20,8 +28,8 @@ const ENTRY_X = 14146107.4019856;
 const ENTRY_Y = 4493801.4693764;
 const { lat: LAB_LAT, lng: LAB_LNG } = webMercatorToLatLng(ENTRY_X, ENTRY_Y);
 
-const NAME = "솜상담연구소";
-const DISPLAY_ADDR = "경기도 성남시 분당구 운중동 946 704호";
+const NAME = '솜상담연구소';
+const DISPLAY_ADDR = '경기도 성남시 분당구 운중동 946 704호';
 
 // 외부 링크
 const NAVER_SEARCH = `https://map.naver.com/v5/search/${encodeURIComponent(DISPLAY_ADDR)}`;
@@ -33,8 +41,6 @@ export default function DirectionsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let timer: any;
-
     const init = () => {
       try {
         const { naver } = window;
@@ -55,26 +61,27 @@ export default function DirectionsPage() {
             <div style="padding:8px 10px;max-width:260px;line-height:1.5;">
               <strong>${NAME}</strong><br/>${DISPLAY_ADDR}<br/>
               <a href="${NAVER_SEARCH}"
-                 target="_blank" rel="noreferrer" style="color:#2563eb;text-decoration:underline;">
+                 target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;">
                  네이버 지도에서 보기
               </a>
             </div>`,
         });
-        naver.maps.Event.addListener(marker, "click", () => info.open(map, marker));
-      } catch (e: any) {
-        setError(e?.message ?? "지도를 초기화하지 못했습니다.");
+        naver.maps.Event.addListener(marker, 'click', () => info.open(map, marker));
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : '지도를 초기화하지 못했습니다.';
+        setError(msg);
       }
     };
 
     // SDK 준비될 때까지 대기(최대 8초)
     let tries = 0;
-    timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       if (window.naver?.maps) {
         clearInterval(timer);
         init();
       } else if (++tries > 80) {
         clearInterval(timer);
-        setError("네이버 지도 SDK가 로드되지 않았습니다. (인증/도메인/키 확인)");
+        setError('네이버 지도 SDK가 로드되지 않았습니다. (인증/도메인/키 확인)');
       }
     }, 100);
 
@@ -115,7 +122,7 @@ export default function DirectionsPage() {
                 <a
                   href={NAVER_DIRECTIONS}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-md bg-neutral-800 px-4 py-2 text-white text-sm font-medium hover:bg-neutral-900"
                 >
                   길찾기
@@ -123,7 +130,7 @@ export default function DirectionsPage() {
                 <a
                   href={NAVER_SEARCH}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
                 >
                   지도에서 보기
@@ -153,10 +160,14 @@ export default function DirectionsPage() {
                 content={
                   <div className="space-y-1">
                     <p>
-                      <a className="hover:underline" href="tel:0317070704">031-707-0704</a>
+                      <a className="hover:underline" href="tel:0317070704">
+                        031-707-0704
+                      </a>
                     </p>
                     <p>
-                      <a className="hover:underline" href="tel:01025927040">010-2592-7040</a>
+                      <a className="hover:underline" href="tel:01025927040">
+                        010-2592-7040
+                      </a>
                     </p>
                   </div>
                 }
@@ -188,13 +199,22 @@ export default function DirectionsPage() {
                 content={
                   <ul className="flex flex-wrap gap-6 text-neutral-800">
                     <li className="flex items-center gap-2">
-                      <span className="text-xl" aria-hidden>📅</span> 예약
+                      <span className="text-xl" aria-hidden={true}>
+                        📅
+                      </span>{' '}
+                      예약
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-xl" aria-hidden>📶</span> 무선 인터넷
+                      <span className="text-xl" aria-hidden={true}>
+                        📶
+                      </span>{' '}
+                      무선 인터넷
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-xl" aria-hidden>🚻</span> 남/녀 화장실 구분
+                      <span className="text-xl" aria-hidden={true}>
+                        🚻
+                      </span>{' '}
+                      남/녀 화장실 구분
                     </li>
                   </ul>
                 }
@@ -204,23 +224,40 @@ export default function DirectionsPage() {
               <div className="py-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* 사업자정보 */}
                 <div>
-                  <h3 className="text-base font-semibold text-neutral-900 mb-3">사업자정보</h3>
+                  <h3 className="text-base font-semibold text-neutral-900 mb-3">
+                    사업자정보
+                  </h3>
                   <dl className="grid grid-cols-[92px_1fr] gap-y-2 text-neutral-800">
-                    <dt className="text-neutral-500">상호명</dt><dd>솜상담연구소</dd>
-                    <dt className="text-neutral-500">대표자</dt><dd>황지선</dd>
-                    <dt className="text-neutral-500">사업자번호</dt><dd>598-96-01120</dd>
+                    <dt className="text-neutral-500">상호명</dt>
+                    <dd>솜상담연구소</dd>
+                    <dt className="text-neutral-500">대표자</dt>
+                    <dd>황지선</dd>
+                    <dt className="text-neutral-500">사업자번호</dt>
+                    <dd>598-96-01120</dd>
                     <dt className="text-neutral-500">이메일</dt>
-                    <dd><a className="hover:underline" href="mailto:somschool704@naver.com">somschool704@naver.com</a></dd>
+                    <dd>
+                      <a
+                        className="hover:underline"
+                        href="mailto:somschool704@naver.com"
+                      >
+                        somschool704@naver.com
+                      </a>
+                    </dd>
                   </dl>
                 </div>
 
                 {/* 입금계좌 */}
                 <div>
-                  <h3 className="text-base font-semibold text-neutral-900 mb-3">입금계좌</h3>
+                  <h3 className="text-base font-semibold text-neutral-900 mb-3">
+                    입금계좌
+                  </h3>
                   <dl className="grid grid-cols-[92px_1fr] gap-y-2 text-neutral-800">
-                    <dt className="text-neutral-500">예금주</dt><dd>황지선</dd>
-                    <dt className="text-neutral-500">입금은행</dt><dd>우리은행</dd>
-                    <dt className="text-neutral-500">계좌번호</dt><dd className="font-semibold">1002-132-348269</dd>
+                    <dt className="text-neutral-500">예금주</dt>
+                    <dd>황지선</dd>
+                    <dt className="text-neutral-500">입금은행</dt>
+                    <dd>우리은행</dd>
+                    <dt className="text-neutral-500">계좌번호</dt>
+                    <dd className="font-semibold">1002-132-348269</dd>
                   </dl>
                 </div>
               </div>
@@ -233,7 +270,7 @@ export default function DirectionsPage() {
 }
 
 /** 라벨/콘텐츠 2열 레이아웃 공용 컴포넌트 */
-function Row({ label, content }: { label: string; content: React.ReactNode }) {
+function Row({ label, content }: { label: string; content: ReactNode }) {
   return (
     <div className="py-6 grid grid-cols-1 sm:grid-cols-[96px_1fr] gap-2 sm:gap-6">
       <div className="text-neutral-500">{label}</div>
