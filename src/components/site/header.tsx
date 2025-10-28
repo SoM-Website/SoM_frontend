@@ -188,7 +188,7 @@ export function Header() {
       key={item.href}
       href={item.href}
       aria-current={isActive(item.href) ? "page" : undefined}
-      className={`relative shrink-0 text-[19px] leading-none py-3 ${
+      className={`relative shrink-0 text-[18px] leading-none py-3 ${
         isActive(item.href)
           ? "font-bold text-neutral-900"
           : "font-semibold text-neutral-700 hover:text-neutral-900"

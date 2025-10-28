@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { Header } from "@/components/site/header";
+import { Footer } from "@/components/site/footer"; // 추가
 
 const pretendard = localFont({
   src: "./fonts/PretendardVariable.woff2",
@@ -23,7 +24,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className={`${pretendard.className} antialiased`}>
-        {/* 전역 네이버 지도 SDK 로드 (함수 props 금지) */}
         {clientId ? (
           <Script
             id="naver-maps"
@@ -34,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <Header />
         <main className="min-h-screen">{children}</main>
+        <Footer /> {/* 추가 */}
       </body>
     </html>
   );
