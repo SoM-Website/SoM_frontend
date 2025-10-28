@@ -188,7 +188,7 @@ export function Header() {
       key={item.href}
       href={item.href}
       aria-current={isActive(item.href) ? "page" : undefined}
-      className={`relative shrink-0 text-[15px] leading-none py-2 ${
+      className={`relative shrink-0 text-[19px] leading-none py-3 ${
         isActive(item.href)
           ? "font-bold text-neutral-900"
           : "font-semibold text-neutral-700 hover:text-neutral-900"
@@ -197,7 +197,7 @@ export function Header() {
     >
       {item.label}
       <span
-        className={`absolute left-0 -bottom-[6px] h-[2px] rounded-full transition-all ${
+        className={`absolute left-0 -bottom-[8px] h-[3px] rounded-full transition-all ${
           isActive(item.href) ? "w-full bg-neutral-900" : "w-0 bg-transparent"
         }`}
       />
@@ -273,8 +273,8 @@ export function Header() {
         {/* ───────── 데스크톱: 2행 ───────── */}
         <div className="hidden md:block">
           {/* 1행: 왼쪽 정렬 브랜드명 */}
-          <div className="container max-w-6xl mx-auto px-4 h-10 flex items-center justify-start">
-            <Link href="/" className="text-lg md:text-xl lg:text-2xl font-bold">
+          <div className="container max-w-6xl mx-auto px-4 h-14 flex items-center justify-start">
+            <Link href="/" className="text-xl md:text-2xl lg:text-3xl font-bold">
               SoM 상담 연구소
             </Link>
           </div>
@@ -282,7 +282,7 @@ export function Header() {
           {/* 2행: 메뉴(가운데 정렬) + 가로 스크롤 트랙 + 좌우 버튼 */}
           <div
             ref={rowRef}
-            className="container max-w-6xl mx-auto px-4 h-12 hidden md:flex items-center justify-center relative"
+            className="container max-w-6xl mx-auto px-4 h-14 hidden md:flex items-center justify-center relative"
             onMouseLeave={closeWithDelay}
           >
             {/* 왼쪽 스크롤 버튼 */}
