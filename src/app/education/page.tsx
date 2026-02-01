@@ -112,7 +112,7 @@ export default function EducationPage() {
 
             {/* 게시글 목록 */}
             <ul>
-              {filteredPosts.map((post, index) => (
+              {filteredPosts.map((post) => (
                 <li key={post.id} className="border-b border-neutral-200 last:border-0">
                   <Link
                     href={`/education/${post.id}`}

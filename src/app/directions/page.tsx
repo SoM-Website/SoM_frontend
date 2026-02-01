@@ -27,7 +27,6 @@ const { lat: LAB_LAT, lng: LAB_LNG } = webMercatorToLatLng(ENTRY_X, ENTRY_Y);
 const NAME = '솜상담연구소';
 const DISPLAY_ADDR = '경기도 성남시 분당구 운중동 946 704호';
 const NAVER_SEARCH = `https://map.naver.com/v5/search/${encodeURIComponent(DISPLAY_ADDR)}`;
-const NAVER_DIRECTIONS = NAVER_SEARCH;
 
 export default function DirectionsPage() {
   const mapEl = useRef<HTMLDivElement | null>(null);

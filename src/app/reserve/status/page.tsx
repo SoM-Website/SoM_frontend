@@ -39,7 +39,7 @@ const ADMIN_STATUS_OPTIONS = ['pending', 'confirmed', 'completed'] as const
 
 export default function ReservationStatusPage() {
   const { data: session, status: sessionStatus } = useSession()
-  const isAdmin = (session?.user as any)?.role === 'ADMIN'
+  const isAdmin = session?.user?.role === "ADMIN"
 
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authData, setAuthData] = useState({ name: '', password: '' })
@@ -148,7 +148,7 @@ export default function ReservationStatusPage() {
       const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {
-        throw new Error((data as any).error || '삭제 실패')
+        throw new Error(data.error || '삭제 실패')
       }
 
       setReservations(prev => prev.filter(r => r.id !== id))

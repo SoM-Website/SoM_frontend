@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSession, signOut } from "next-auth/react"; 
-import { NAV, type NavItem, type ChildItem } from '@/constants/navigation';
+import { NAV, type NavItem } from '@/constants/navigation';
 
 // MobileDrawer
 function MobileDrawer({

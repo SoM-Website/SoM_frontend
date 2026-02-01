@@ -5,6 +5,7 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth
   const { pathname } = req.nextUrl
   
+  // 로그인 페이지는 체크 제외
   const isLoginPage = pathname === "/admin/login"
   
   if (isLoginPage) {
@@ -12,8 +13,10 @@ export default auth((req) => {
   }
   
   const isAdminRoute = pathname.startsWith("/admin")
+  const isEducationWriteRoute = pathname.startsWith("/education/write") // ✅ 추가
   
-  if (isAdminRoute && !isLoggedIn) {
+  // /admin과 /education/write만 로그인 필요
+  if ((isAdminRoute || isEducationWriteRoute) && !isLoggedIn) {
     return Response.redirect(new URL("/admin/login", req.url))
   }
 })
@@ -21,7 +24,7 @@ export default auth((req) => {
 export const config = {
   matcher: [
     "/admin/:path*", 
-    "/api/admin/:path*"
-    // ✅ /education 관련 제거 - /education/write 페이지 자체에서 체크
+    "/api/admin/:path*", 
+    "/education/write/:path*" // ✅ 변경: /education/write만 보호
   ],
 }
