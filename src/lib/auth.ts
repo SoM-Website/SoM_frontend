@@ -18,15 +18,18 @@ export const authConfig: NextAuthConfig = {
         password: { label: "비밀번호", type: "password" },
       },
       async authorize(creds) {
-        if (!creds?.username || !creds.password) return null;
+        const username = creds?.username as string | undefined;
+        const password = creds?.password as string | undefined;
+
+        if (!username || !password) return null;
 
         const user = await prisma.user.findUnique({
-          where: { username: creds.username },
+          where: { username },
         });
 
         if (!user || !user.passwordHash) return null;
 
-        const ok = await bcryptjs.compare(creds.password, user.passwordHash);
+        const ok = await bcryptjs.compare(password, user.passwordHash);
         if (!ok) return null;
 
         // ADMIN 권한 체크
@@ -56,8 +59,8 @@ export const authConfig: NextAuthConfig = {
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.id = token.id as string;  // 타입 단언 추가
+        session.user.role = token.role as "USER" | "ADMIN";  // 타입 단언 추가
       }
       return session;
     },
