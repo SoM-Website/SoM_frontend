@@ -68,11 +68,11 @@ export default function HomePage() {
       </section>
 
       {/* 소개 문단 */}
+      {/* text-left  */}
       <section className="container mx-auto max-w-4xl px-4 py-10 sm:py-12">
-        <h2 className="text-center font-bold text-base text-muted-foreground">솜상담연구소</h2>
-        <p className="mt-4 text-center font-bold leading-7 text-base text-gray-700 whitespace-pre-line">
-          {`솜상담연구소는 대면/ 비대면 심리상담 및 교육서비스를 제공합니다. 현재, 코로나 블루, 우울, 불안, 성격, 대인관계 갈등 등으로 어려움을 겪고 있는 성인을 위한 개인상담 및 부부 & 커플상담, 부모역할 상담을 제공하며, 다양한 심리검사 해석 상담 및 교육과,
-맞춤형 스트레스 관리 집단 상담, 감수성훈련, 갈등관계해결 집단, EAP 상담 등 개인과 조직의 심리지원 서비스를 제공하고 있습니다.
+        <h2 className="text-center font-bold text-base text-muted-foreground">SoM 상담연구소</h2>
+        <p className="mt-4 text-left font-bold leading-7 text-base text-gray-700 whitespace-pre-line">
+          {`솜상담연구소는 대면/ 비대면 심리상담 및 교육서비스를 제공합니다. 우울, 불안, 성격, 대인관계 갈등 등으로 어려움을 겪고 있는 성인을 위한 개인상담 및 부부 & 커플상담, 부모역할 상담을 제공하며, 다양한 심리검사 해석 상담 및 교육과, 맞춤형 스트레스 관리 집단 상담, 감수성훈련, 갈등관계해결 집단, EAP 상담 등 개인과 조직의 심리지원 서비스를 제공하고 있습니다.
 (모든 상담서비스는 예약제로 운영됩니다.)`}
         </p>
       </section>

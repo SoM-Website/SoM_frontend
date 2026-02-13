@@ -1,3 +1,4 @@
+
 // src/components/site/footer.tsx
 const ORG = {
   name: "솜(SoM)상담연구소",
@@ -21,37 +22,24 @@ export function Footer() {
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           <div className="md:col-span-8">
-            <p className="text-2xl md:text-3xl text-neutral-100">{ORG.name}</p>
-            <address className="not-italic mt-4 text-neutral-400 leading-relaxed">
-              {`솜상담연구소, ${ORG.owner}, ${ORG.address}, 사업자등록번호 : ${ORG.bizNumber}, 전화번호 : `}
-              <a href={`tel:${ORG.tel}`} className="hover:text-neutral-200">
-                {ORG.tel}
-              </a>
-              {`, 이메일 : `}
-              <a href={`mailto:${ORG.email}`} className="hover:text-neutral-200">
-                {ORG.email}
-              </a>
+            <p className="text-2xl md:text-3xl text-neutral-100 mb-6">{ORG.name}</p>
+            <address className="not-italic text-neutral-400 leading-relaxed space-y-1">
+              <div>대표: {ORG.owner}</div>
+              <div>주소: {ORG.address}</div>
+              <div>사업자등록번호: {ORG.bizNumber}</div>
+              <div>
+                전화:{" "}
+                <a href={`tel:${ORG.tel}`} className="hover:text-neutral-200">
+                  {ORG.tel}
+                </a>
+              </div>
+              <div>
+                이메일:{" "}
+                <a href={`mailto:${ORG.email}`} className="hover:text-neutral-200">
+                  {ORG.email}
+                </a>
+              </div>
             </address>
-          </div>
-
-          <div className="md:col-span-4 md:pl-8 md:border-l md:border-neutral-700">
-            <div className="text-neutral-400">계좌정보</div>
-            <div className="h-px w-full bg-neutral-700 mt-2 mb-4" />
-
-            <dl className="space-y-2">
-              <div className="flex items-baseline md:gap-6 justify-between md:justify-start">
-                <dt className="w-24 text-neutral-400">예금주</dt>
-                <dd className="text-neutral-100">{ORG.bank.holder}</dd>
-              </div>
-              <div className="flex items-baseline md:gap-6 justify-between md:justify-start">
-                <dt className="w-24 text-neutral-400">입금은행</dt>
-                <dd className="text-neutral-100">{ORG.bank.name}</dd>
-              </div>
-              <div className="flex items-baseline md:gap-6 justify-between md:justify-start">
-                <dt className="w-24 text-neutral-400">계좌번호</dt>
-                <dd className="text-neutral-100 tracking-wide">{ORG.bank.account}</dd>
-              </div>
-            </dl>
           </div>
         </div>
       </div>
