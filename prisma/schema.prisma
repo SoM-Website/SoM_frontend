@@ -22,6 +22,8 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  passwordResetToken  String?   @unique
+  passwordResetExpiry DateTime?
 
   // 권한 및 인증용
   role         Role     @default(USER)
